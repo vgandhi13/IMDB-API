@@ -6,6 +6,46 @@ source env/bin/activate
 pip install django
 pip install djangorestframework
 
+#For SWAGGER
+pip install pyyaml   
+pip install uritemplate
+pip install inflection
+pip install django-rest-swagger
 
-django-admin startproject IMDB .
+#for making http request
+pip install requests
+
+#psycopg2 package installed, which is the PostgreSQL adapter for Python.
+pip install psycopg2
+
+POSTGRESQL and Django connection:  https://www.youtube.com/watch?v=5EY6JFptZgw  
+
+
+#DJango commands
+django-admin startproject IMDB .    #initial
 python manage.py runserver
+
+
+#data base update
+python manage.py migrate       
+python manage.py makemigrations
+
+ python manage.py createsuperuser
+
+ user, password - root, root
+
+
+
+
+ Containerization specifics:
+ Dockerfile creates an image of django applications
+ Docker compose file pulls image of postgres and creates a container for db, and builds the image of django created through dockerfile and creates a container for it.
+ Puts both the containers in the same network called my network.
+
+ Now, on doing docker-compose up, the development server will be started
+ On a new terminal on the side, we should do docker exec -it mydjangoapp bash
+ This will make us enter the container.
+ Once, we are in, we write the following commands:
+ python manage.py makemigrations
+ python manage.py migrate     
+ python manage.py createsuperuser
