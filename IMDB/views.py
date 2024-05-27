@@ -1,5 +1,6 @@
 from django.http import JsonResponse
-from rest_framework.decorators import api_view 
+# from rest_framework.decorators import api_view 
+from adrf.decorators import api_view 
 from rest_framework.response import Response 
 from rest_framework import status 
 import requests
@@ -9,6 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
 import urllib.parse
+import asyncio
+from django.db import connection
+from asgiref.sync import sync_to_async
 
 #comment
 
@@ -183,19 +187,27 @@ def get_movie(request):
         except requests.exceptions.RequestException as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-@api_view(['GET'])
-@csrf_exempt
-def get_all_movie_titles(request):
-    if request.method == 'GET':
-        # Query all Movie objects and retrieve their titles
-        movie_titles = Query.objects.values_list('queryTitle', flat=True)
-        # Convert QuerySet to list for JSON serialization
-        movie_titles_list = list(movie_titles)
-        # Return the list of movie titles as a JSON response
-        return Response(movie_titles_list, status=status.HTTP_200_OK)
+# @api_view(['GET'])
+# @csrf_exempt
+# def get_all_movie_titles(request):
+#     if request.method == 'GET':
+#         # Query all Movie objects and retrieve their titles
+#         movie_titles = Query.objects.values_list('queryTitle', flat=True)
+#         # Convert QuerySet to list for JSON serialization
+#         movie_titles_list = list(movie_titles)
+#         # Return the list of movie titles as a JSON response
+#         return Response(movie_titles_list, status=status.HTTP_200_OK)
     
 
 
+@api_view(['GET'])
+@csrf_exempt
+async def get_all_movie_titles(request):
+    # Wrap the synchronous ORM query in sync_to_async
+    queryset = await sync_to_async(Query.objects.values_list)('queryTitle', flat=True)
+    # Execute the asynchronous query
+    movie_titles = await sync_to_async(list)(queryset)
+    return Response(movie_titles, status=status.HTTP_200_OK)
 
 '''
 import requests
