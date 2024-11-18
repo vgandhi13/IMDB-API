@@ -17,23 +17,21 @@ from asgiref.sync import sync_to_async
 #comment
 
 def store_db_helper(id):
-
-    # The original encoded URL
     encoded_url = "https://caching.graphql.imdb.com/?operationName=TMD_Storyline&variables=%7B%22isAutoTranslationEnabled%22%3Afalse%2C%22locale%22%3A%22en-US%22%2C%22titleId%22%3A%22tt0816692%22%7D&extensions=%7B%22persistedQuery%22%3A%7B%22sha256Hash%22%3A%228693f4655e3e7c5b6f786c6cf30e72dfa63a8fd52ebbad6f3a5ef7f03431c0f1%22%2C%22version%22%3A1%7D%7D"
 
-    # Parse the URL
+    
     parsed_url = urllib.parse.urlparse(encoded_url)
     query_params = urllib.parse.parse_qs(parsed_url.query)
 
-    # Decode the JSON strings
+    
     variables = json.loads(query_params['variables'][0])
     extensions = json.loads(query_params['extensions'][0])
 
-    # Modify the titleId field
-    new_title_id = id  # Replace with the new title ID
+    
+    new_title_id = id  
     variables['titleId'] = new_title_id
 
-    # Reconstruct the URL with the modified variables
+    
     modified_query_params = {
         'operationName': query_params['operationName'][0],
         'variables': json.dumps(variables),
@@ -162,10 +160,9 @@ def get_movie(request):
 
         existing_query = Query.objects.filter(queryTitle=title).first()
         if existing_query:
-            # Return the stored results if the title exists
             return Response(return_data(title), status=status.HTTP_200_OK)
         
-        url = f'https://v3.sg.media-imdb.com/suggestion/x/{title}.json'  # Replace with the actual URL
+        url = f'https://v3.sg.media-imdb.com/suggestion/x/{title}.json'  
         try:
             response = requests.get(url)
             response.raise_for_status()  # Raise an HTTPError if the HTTP request returned an unsuccessful status code
@@ -174,12 +171,9 @@ def get_movie(request):
             
             
 
-            
-            # Store the query and results in the database
             store_in_database(title, data)
 
             resp = return_data(title)
-            # Convert resp to a string format to store in the model
    
             
             return Response(resp, status=status.HTTP_200_OK)
@@ -203,9 +197,8 @@ def get_movie(request):
 @api_view(['GET'])
 @csrf_exempt
 async def get_all_movie_titles(request):
-    # Wrap the synchronous ORM query in sync_to_async
     queryset = await sync_to_async(Query.objects.values_list)('queryTitle', flat=True)
-    # Execute the asynchronous query
+   
     movie_titles = await sync_to_async(list)(queryset)
     return Response(movie_titles, status=status.HTTP_200_OK)
 
