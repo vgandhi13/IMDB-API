@@ -43,7 +43,7 @@ def store_db_helper(id):
     modified_encoded_url = f"https://{parsed_url.netloc}{parsed_url.path}?{encoded_query_string}"
     print("Modified Encoded URL:", modified_encoded_url)
 
-    # Make the request with the modified URL using requests library
+    
     headers = {
         "Accept": "application/graphql+json, application/json",
         "Content-Type": "application/json",
